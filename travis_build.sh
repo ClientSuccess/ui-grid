@@ -26,7 +26,7 @@ else
   echo "travis_fold:end:Tests"
 
   # Send coverage data to coveralls.io
-  if [ $TRAVIS_BRANCH == "master" ]
+  if [ $TRAVIS_BRANCH == "clientsuccess-master" ]
   then
     grunt coverage
     cat ./coverage/lcov.info | ./node_modules/coveralls/bin/coveralls.js || true
