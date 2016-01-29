@@ -315,10 +315,10 @@
                   }
                   previousMouseX = event.pageX;
                   totalMouseMovement = 0;
-                  rightMoveLimit = gridLeft + $scope.grid.getViewportWidth(),
+                  rightMoveLimit = gridLeft + $scope.grid.getViewportWidth();
 
-                    //** @izeni
-                    oldMouseMovement = 0;
+                  //** @izeni
+                  oldMouseMovement = 0;
                   leftMoveLimit =  previousMouseX - gridLeft;
 
                   if ( event.type === 'mousedown' ){
@@ -356,17 +356,17 @@
                     rlength = rights.length,
                     llength = lefts.length;
 
-                  if(rlength > 0){
-                    for(var i=0; i<rlength; i++){
+                  if (rlength > 0){
+                    for (var i = 0; i<rlength; i++){
                       $(rights[i]).removeClass('borderRightColumn');
                     }
                   }
-                  if(llength> 0) {
-                    for(var i=0; i<llength; i++){
-                      $(lefts[i]).removeClass('borderLeftColumn');
+                  if (llength> 0) {
+                    for (var j = 0; j<llength; j++){
+                      $(lefts[j]).removeClass('borderLeftColumn');
                     }
                   }
-                }
+                };
 
                 var upFn = function( event ){
                   //Re-enable text selection after column move
@@ -513,7 +513,7 @@
 
                     //** @izeni
                     // If the cursor is out of bounds, do not update the position of the cloned column header
-                    if(oob) {
+                    if (oob) {
                       movingElm.css({visibility: 'visible', 'left': 0 + 'px'});
                     } else {
                       movingElm.css({visibility: 'visible', 'left': (movingElm[0].offsetLeft + (newElementLeft < rightMoveLimit ?
@@ -566,19 +566,19 @@
                   //** @izeni
                   // $scope.grid.columns has all columns including client name and columns not visible on DOM
 
-                  var allColumnsOnGrid= $scope.grid.columns;
+                  var allColumnsOnGrid = $scope.grid.columns;
                   // Get an array to represent visible columns on DOM
                   var visibleColumnsOnGrid = [];
                   // Get the width of each column to measure trigger events
                   var columnsWidthArray = [];
                   var colWidth = 0;
 
-                  for (var i = 0; i < allColumnsOnGrid.length; i++) {
+                  for (var j = 0; j < allColumnsOnGrid.length; j++) {
                     // Columns must be movable and visible
-                    if(allColumnsOnGrid[i].colDef.enableColumnMoving === true && allColumnsOnGrid[i].visible === true){
-                      colWidth = allColumnsOnGrid[i].drawnWidth || allColumnsOnGrid[i].width || allColumnsOnGrid[i].colDef.width;
+                    if (allColumnsOnGrid[j].colDef.enableColumnMoving === true && allColumnsOnGrid[j].visible === true){
+                      colWidth = allColumnsOnGrid[j].drawnWidth || allColumnsOnGrid[j].width || allColumnsOnGrid[j].colDef.width;
                       columnsWidthArray.push(colWidth);
-                      visibleColumnsOnGrid.push(allColumnsOnGrid[i]);
+                      visibleColumnsOnGrid.push(allColumnsOnGrid[j]);
                     }
                   }
 
@@ -594,17 +594,17 @@
                   // Calculate drop zone, much of this code was reused from the 'up' function to decided where to redraw column on release
                   // Case where column should be moved to a position on its left
                   if (totalMouseMovement < 0) {
-                    var totalColumnsLeftWidth = 0;
-                    for (var il = indexOnDom - 1; il >= 0; il--) {
-                      if (angular.isUndefined(visibleColumnsOnGrid[il].colDef.visible) || visibleColumnsOnGrid[il].colDef.visible === true) {
-                        totalColumnsLeftWidth += visibleColumnsOnGrid[il].drawnWidth || visibleColumnsOnGrid[il].width || visibleColumnsOnGrid[il].colDef.width;
+                    totalColumnsLeftWidth = 0;
+                    for (var k = indexOnDom - 1; k >= 0; k--) {
+                      if (angular.isUndefined(visibleColumnsOnGrid[k].colDef.visible) || visibleColumnsOnGrid[k].colDef.visible === true) {
+                        totalColumnsLeftWidth += visibleColumnsOnGrid[k].drawnWidth || visibleColumnsOnGrid[k].width || visibleColumnsOnGrid[k].colDef.width;
                         if (totalColumnsLeftWidth > Math.abs(totalMouseMovement)) {
-                          $($elm[0].parentElement.children[il]).removeClass('borderLeftColumn');
-                          $($elm[0].parentElement.children[il + 2]).removeClass('borderLeftColumn');
-                          $($elm[0].parentElement.children[il - 1]).removeClass('borderRightColumn');
-                          $($elm[0].parentElement.children[il + 1]).removeClass('borderRightColumn'); // This is to remove the border when direction changes right to left
-                          $($elm[0].parentElement.children[il + 1]).addClass('borderLeftColumn');
-                          $($elm[0].parentElement.children[il]).addClass('borderRightColumn');
+                          $($elm[0].parentElement.children[k]).removeClass('borderLeftColumn');
+                          $($elm[0].parentElement.children[k + 2]).removeClass('borderLeftColumn');
+                          $($elm[0].parentElement.children[k - 1]).removeClass('borderRightColumn');
+                          $($elm[0].parentElement.children[k + 1]).removeClass('borderRightColumn'); // This is to remove the border when direction changes right to left
+                          $($elm[0].parentElement.children[k + 1]).addClass('borderLeftColumn');
+                          $($elm[0].parentElement.children[k]).addClass('borderRightColumn');
                           $($elm[0].parentElement.children[0]).removeClass('borderLeftColumn');
                           break;
                         }
