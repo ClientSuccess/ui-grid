@@ -212,8 +212,14 @@ angular.module('ui.grid')
         menuItems.sort(function(a, b){
           if (a.title === 'Columns:') {
             return -1;
+          }
+
+          if (a.title < b.title) {
+            return -1;
+          } else if (a.title > b.title) {
+            return 1;
           } else {
-            return a.title > b.title;
+            return 0;
           }
         });
       } else {
