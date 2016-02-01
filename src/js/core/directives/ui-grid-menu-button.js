@@ -210,8 +210,14 @@ angular.module('ui.grid')
 
       if ( $scope.grid.options.gridMenuSortAlphabetical ) {
         menuItems.sort(function(a, b){
-          if (a.title === 'Columns:') {
-            return -1;
+          if (a.title === 'Columns:' || b.title === 'Columns:') {
+            if (a.title === 'Columns:') {
+              return -1;
+            } else if (b.title === 'Columns:') {
+              return 1;
+            } else {
+              return 0;
+            }
           }
 
           if (a.title < b.title) {
