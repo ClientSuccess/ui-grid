@@ -208,9 +208,19 @@ angular.module('ui.grid')
         menuItems = menuItems.concat( service.showHideColumns( $scope ) );
       }
 
-      menuItems.sort(function(a, b){
-        return a.order - b.order;
-      });
+      if ( $scope.grid.options.gridMenuSortAlphabetical ) {
+        menuItems.sort(function(a, b){
+          if (a.title === 'Columns:') {
+            return -1;
+          } else {
+            return a.title > b.title;
+          }
+        });
+      } else {
+        menuItems.sort(function(a, b){
+          return a.order - b.order;
+        });
+      }
 
       return menuItems;
     },
