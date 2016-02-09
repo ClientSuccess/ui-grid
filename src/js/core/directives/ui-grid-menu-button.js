@@ -212,9 +212,9 @@ angular.module('ui.grid')
         var fieldsToNotSort = ['Columns:', 'Clear all filters'];
         menuItems.sort(function(a, b){
           if (fieldsToNotSort.indexOf(a.title) >= 0 || fieldsToNotSort.indexOf(b.title) >= 0) {
-            if (fieldsToNotSort.indexOf(a.title) >= 0 && !fieldsToNotSort.indexOf(b.title) >= 0) {
+            if (fieldsToNotSort.indexOf(a.title) >= 0 && fieldsToNotSort.indexOf(b.title) < 0) {
               return -1;
-            } else if (fieldsToNotSort.indexOf(b.title) >= 0 && !fieldsToNotSort.indexOf(a.title) >= 0) {
+            } else if (fieldsToNotSort.indexOf(b.title) >= 0 && fieldsToNotSort.indexOf(a.title) < 0) {
               return 1;
             } else {
               return 0;
