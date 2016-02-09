@@ -209,11 +209,12 @@ angular.module('ui.grid')
       }
 
       if ( $scope.grid.options.gridMenuSortAlphabetical ) {
+        var fieldsToNotSort = ['Columns:', 'Clear all filters'];
         menuItems.sort(function(a, b){
-          if (a.title === 'Columns:' || b.title === 'Columns:') {
-            if (a.title === 'Columns:') {
+          if (fieldsToNotSort.indexOf(a.title) >= 0 || fieldsToNotSort.indexOf(b.title) >= 0) {
+            if (fieldsToNotSort.indexOf(a.title) >= 0 && !fieldsToNotSort.indexOf(b.title) >= 0) {
               return -1;
-            } else if (b.title === 'Columns:') {
+            } else if (fieldsToNotSort.indexOf(b.title) >= 0 && !fieldsToNotSort.indexOf(a.title) >= 0) {
               return 1;
             } else {
               return 0;
