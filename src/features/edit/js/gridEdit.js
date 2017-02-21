@@ -507,7 +507,11 @@
             });
 
 
-            $scope.$on( '$destroy', rowWatchDereg );
+            $scope.$on('$destroy', function destroyEvents() {
+              rowWatchDereg();
+              // unbind all jquery events in order to avoid memory leaks
+              $elm.off();
+            });
 
             function registerBeginEditEvents() {
               $elm.on('dblclick', beginEdit);
@@ -528,13 +532,13 @@
                   }
                 });
 
-                cellNavNavigateDereg = uiGridCtrl.grid.api.cellNav.on.navigate($scope, function (newRowCol, oldRowCol) {
+                cellNavNavigateDereg = uiGridCtrl.grid.api.cellNav.on.navigate($scope, function (newRowCol, oldRowCol, evt) {
                   if ($scope.col.colDef.enableCellEditOnFocus) {
                     // Don't begin edit if the cell hasn't changed
                     if ((!oldRowCol || newRowCol.row !== oldRowCol.row || newRowCol.col !== oldRowCol.col) &&
                       newRowCol.row === $scope.row && newRowCol.col === $scope.col) {
                       $timeout(function () {
-                        beginEdit();
+                        beginEdit(evt);
                       });
                     }
                   }
@@ -660,7 +664,7 @@
              *  [ {id: xxx, value: xxx} ], which will be used to populate
              *  the edit dropdown.  This can be used when the dropdown values are dependent on
              *  the backing row entity with some kind of algorithm.
-             *  If this property is set then both editDropdownOptionsArray and 
+             *  If this property is set then both editDropdownOptionsArray and
              *  editDropdownRowEntityOptionsArrayPath will be ignored.
              *  @param {object} rowEntity the options.data element that the returned array refers to
              *  @param {object} colDef the column that implements this dropdown
@@ -732,20 +736,18 @@
                 return;
               }
 
+              var modelField = $scope.row.getQualifiedColField($scope.col);
+              if ($scope.col.colDef.editModelField) {
+                modelField = gridUtil.preEval('row.entity.' + $scope.col.colDef.editModelField);
+              }
 
-              cellModel = $parse($scope.row.getQualifiedColField($scope.col));
+              cellModel = $parse(modelField);
+
               //get original value from the cell
               origCellValue = cellModel($scope);
 
               html = $scope.col.editableCellTemplate;
-
-              if ($scope.col.colDef.editModelField) {
-                html = html.replace(uiGridConstants.MODEL_COL_FIELD, gridUtil.preEval('row.entity.' + $scope.col.colDef.editModelField));
-              }
-              else {
-                html = html.replace(uiGridConstants.MODEL_COL_FIELD, $scope.row.getQualifiedColField($scope.col));
-              }
-
+              html = html.replace(uiGridConstants.MODEL_COL_FIELD, modelField);
               html = html.replace(uiGridConstants.COL_FIELD, 'grid.getCellValue(row, col)');
 
               var optionFilter = $scope.col.colDef.editDropdownFilter ? '|' + $scope.col.colDef.editDropdownFilter : '';
@@ -856,7 +858,10 @@
               var gridCellContentsEl = angular.element($elm.children()[0]);
               //remove edit element
               editCellScope.$destroy();
-              angular.element($elm.children()[1]).remove();
+              var children = $elm.children();
+              for (var i = 1; i < children.length; i++) {
+                angular.element(children[i]).remove();
+              }
               gridCellContentsEl.removeClass('ui-grid-cell-contents-hidden');
               inEdit = false;
               registerBeginEditEvents();
@@ -935,7 +940,7 @@
                   $timeout(function () {
                     $elm[0].focus();
                     //only select text if it is not being replaced below in the cellNav viewPortKeyPress
-                    if ($scope.col.colDef.enableCellEditOnFocus || !(uiGridCtrl && uiGridCtrl.grid.api.cellNav)) {
+                    if ($elm[0].select && ($scope.col.colDef.enableCellEditOnFocus || !(uiGridCtrl && uiGridCtrl.grid.api.cellNav))) {
                       $elm[0].select();
                     }
                     else {
@@ -965,9 +970,20 @@
                     });
                   }
 
-                  $elm.on('blur', function (evt) {
-                    $scope.stopEdit(evt);
+                  // macOS will blur the checkbox when clicked in Safari and Firefox,
+                  // to get around this, we disable the blur handler on mousedown,
+                  // and then focus the checkbox and re-enable the blur handler after $timeout
+                  $elm.on('mousedown', function(evt) {
+                    if ($elm[0].type === 'checkbox') {
+                      $elm.off('blur', $scope.stopEdit);
+                      $timeout(function() {
+                        $elm.focus();
+                        $elm.on('blur', $scope.stopEdit);
+                      });
+                    }
                   });
+
+                  $elm.on('blur', $scope.stopEdit);
                 });
 
 
@@ -1029,6 +1045,11 @@
                   }
 
                   return true;
+                });
+
+                $scope.$on('$destroy', function unbindEvents() {
+                  // unbind all jquery events in order to avoid memory leaks
+                  $elm.off();
                 });
               }
             };
@@ -1114,8 +1135,8 @@
    *
    */
   module.directive('uiGridEditDropdown',
-    ['uiGridConstants', 'uiGridEditConstants',
-      function (uiGridConstants, uiGridEditConstants) {
+    ['uiGridConstants', 'uiGridEditConstants', '$timeout',
+      function (uiGridConstants, uiGridEditConstants, $timeout) {
         return {
           require: ['?^uiGrid', '?^uiGridRenderContainer'],
           scope: true,
@@ -1130,7 +1151,10 @@
 
                 //set focus at start of edit
                 $scope.$on(uiGridEditConstants.events.BEGIN_CELL_EDIT, function () {
-                  $elm[0].focus();
+                  $timeout(function(){
+                    $elm[0].focus();
+                  });
+
                   $elm[0].style.width = ($elm[0].parentElement.offsetWidth - 1) + 'px';
                   $elm.on('blur', function (evt) {
                     $scope.stopEdit(evt);
@@ -1169,6 +1193,11 @@
                     }
                   }
                   return true;
+                });
+
+                $scope.$on('$destroy', function unbindEvents() {
+                  // unbind jquery events to prevent memory leaks
+                  $elm.off();
                 });
               }
             };
@@ -1262,7 +1291,7 @@
                   }
                 };
 
-                $elm[0].addEventListener('change', handleFileSelect, false);  // TODO: why the false on the end?  Google
+                $elm[0].addEventListener('change', handleFileSelect, false);
 
                 $scope.$on(uiGridEditConstants.events.BEGIN_CELL_EDIT, function () {
                   $elm[0].focus();
@@ -1272,11 +1301,15 @@
                     $scope.$emit(uiGridEditConstants.events.END_CELL_EDIT);
                   });
                 });
+
+                $scope.$on('$destroy', function unbindEvents() {
+                  // unbind jquery events to prevent memory leaks
+                  $elm.off();
+                  $elm[0].removeEventListener('change', handleFileSelect, false);
+                });
               }
             };
           }
         };
       }]);
-
-
 })();

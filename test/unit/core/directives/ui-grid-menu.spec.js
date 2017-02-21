@@ -80,7 +80,7 @@ describe('ui-grid-menu', function() {
       $scope.$broadcast('show-menu');
 
       expect(isolateScope.dynamicStyles).toBeDefined();
-      expect(isolateScope.dynamicStyles).toContain('.grid1234 .ui-grid-menu-mid { max-height: 370px; }');
+      expect(isolateScope.dynamicStyles).toContain('.grid1234 .ui-grid-menu-mid { max-height: 350px; }');
     });
 
     function compileWithGrid () {
@@ -88,11 +88,15 @@ describe('ui-grid-menu', function() {
       grid.data('$uiGridController', $controller(function ($scope) {
         this.grid = {
           gridHeight: 400,
+          headerHeight: 30,
           id: '1234',
           api: {
             core: {
               on: {
-                scrollBegin: angular.noop
+                scrollBegin: angular.noop,
+                gridDimensionChanged: function($scope, fxn) {
+                  fxn(100, 100, 400, 200);
+                }
               }
             }
           }
@@ -229,6 +233,68 @@ describe('ui-grid-menu', function() {
       var item = menu.find('.ui-grid-menu-item').first();
 
       expect(item.hasClass('ng-hide')).toBe(false);
+    });
+  });
+
+
+  describe('keyUp and keyDown actions', function() {
+    var timeout, menuItemButtons;
+    beforeEach(inject(function ($timeout) {
+      timeout = $timeout;
+    }));
+    beforeEach( function() {
+      $scope.$broadcast('show-menu');
+      $scope.$digest();
+      timeout.flush();
+    });
+
+    it('should focus on the first menu item after tabbing from the last menu item', function() {
+      menuItemButtons = menu.find('button');
+      var e = $.Event("keydown");
+      e.keyCode = 9;
+      var focusSpy = jasmine.createSpy('focusSpy');
+      focusSpy(menuItemButtons[0],'focus');
+      //mock has 4 items, last one his hidden
+      $(menuItemButtons[2]).trigger(e);
+      expect(focusSpy).toHaveBeenCalled();
+    });
+
+    it('should call hideMenu if ESC is pressed', function() {
+      var hideSpy = jasmine.createSpy('hideMenuSpy');
+      hideSpy(isolateScope, 'hideMenu');
+      var e = $.Event("keyup");
+      e.keyCode = 27;
+      $(menu).trigger(e);
+      expect(hideSpy).toHaveBeenCalled();
+    });
+  });
+
+  describe('custom gridMenu templates', function () {
+    var $timeout;
+    var customGridMenu = '<div ui-grid-menu-custom menu-items="items"></div>';
+
+    beforeEach(inject(function (_$timeout_) {
+      $timeout = _$timeout_;
+    }));
+    beforeEach( function() {
+      recompile = function () {
+        var element = angular.element('<div ui-grid="gridOptions"></div>');
+        $scope.gridOptions = {};
+        $scope.gridOptions.gridMenuTemplate = customGridMenu;
+        $scope.gridOptions.onRegisterApi = function(gridApi) {
+          $scope.grid = gridApi.grid;
+        };
+        $timeout(function () {
+          $compile(element)($scope);
+        });
+        $timeout.flush();
+      };
+
+      recompile();
+    });
+
+    it('should have gridMenuTemplate defined in grid options', function() {
+      expect($scope.grid.options.gridMenuTemplate).toEqual(customGridMenu);
     });
   });
 });

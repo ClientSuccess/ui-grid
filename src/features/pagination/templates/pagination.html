@@ -18,9 +18,9 @@
         ng-click="pageFirstPageClick()"
         ng-disabled="cantPageBackward()">
         <div
-          class="first-triangle">
+          ng-class="grid.isRTL() ? 'last-triangle' : 'first-triangle'">
           <div
-            class="first-bar">
+            ng-class="grid.isRTL() ? 'last-bar-rtl' : 'first-bar'">
           </div>
         </div>
       </button>
@@ -32,7 +32,7 @@
         ui-grid-one-bind-aria-label="aria.pageBack"
         ng-click="pagePreviousPageClick()"
         ng-disabled="cantPageBackward()">
-        <div class="first-triangle prev-triangle"></div>
+        <div ng-class="grid.isRTL() ? 'last-triangle prev-triangle' : 'first-triangle prev-triangle'"></div>
       </button>
       <input
         type="number"
@@ -60,7 +60,7 @@
         ui-grid-one-bind-aria-label="aria.pageForward"
         ng-click="pageNextPageClick()"
         ng-disabled="cantPageForward()">
-        <div class="last-triangle next-triangle"></div>
+        <div ng-class="grid.isRTL() ? 'first-triangle next-triangle' : 'last-triangle next-triangle'"></div>
       </button>
       <button
         type="button"
@@ -70,15 +70,15 @@
         ui-grid-one-bind-aria-label="aria.pageToLast"
         ng-click="pageLastPageClick()"
         ng-disabled="cantPageToLast()">
-        <div class="last-triangle">
-          <div class="last-bar">
+        <div ng-class="grid.isRTL() ? 'first-triangle' : 'last-triangle'">
+          <div ng-class="grid.isRTL() ? 'first-bar-rtl' : 'last-bar'">
           </div>
         </div>
       </button>
     </div>
     <div
       class="ui-grid-pager-row-count-picker"
-      ng-if="grid.options.paginationPageSizes.length > 1">
+      ng-if="grid.options.paginationPageSizes.length > 1 && !grid.options.useCustomPagination">
       <select
         ui-grid-one-bind-aria-labelledby-grid="'items-per-page-label'"
         ng-model="grid.options.paginationPageSize"
@@ -101,12 +101,12 @@
       class="ui-grid-pager-count">
       <span
         ng-show="grid.options.totalItems > 0">
-        {{showingLow}}
+        {{ 1 + paginationApi.getFirstRowIndex() }}
         <abbr
           ui-grid-one-bind-title="paginationThrough">
           -
         </abbr>
-        {{showingHigh}} {{paginationOf}} {{grid.options.totalItems}} {{totalItemsLabel}}
+        {{ 1 + paginationApi.getLastRowIndex() }} {{paginationOf}} {{grid.options.totalItems}} {{totalItemsLabel}}
       </span>
     </div>
   </div>

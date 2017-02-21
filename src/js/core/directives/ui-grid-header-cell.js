@@ -33,8 +33,8 @@
             };
             $scope.isSortPriorityVisible = function() {
               //show sort priority if column is sorted and there is at least one other sorted column
-              return $scope.col.sort.priority && $scope.grid.columns.some(function(element, index){
-                  return element.sort.priority && element !== $scope.col;
+              return angular.isNumber($scope.col.sort.priority) && $scope.grid.columns.some(function(element, index){
+                  return angular.isNumber(element.sort.priority) && element !== $scope.col;
                 });
             };
             $scope.getSortDirectionAriaLabel = function(){
@@ -235,7 +235,7 @@
               });
 
               // Figure out whether this column is sortable or not
-              if (uiGridCtrl.grid.options.enableSorting && $scope.col.enableSorting) {
+              if ($scope.col.enableSorting) {
                 $scope.sortable = true;
               }
               else {

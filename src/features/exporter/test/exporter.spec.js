@@ -75,6 +75,7 @@ describe('ui.grid.exporter uiGridExporterService', function () {
         exporterCsvFilename: 'download.csv',
         exporterPdfFilename: 'download.pdf',
         exporterOlderExcelCompatibility: false,
+        exporterIsExcelCompatible: false,
         exporterPdfDefaultStyle : { fontSize : 11 },
         exporterPdfTableStyle : { margin : [ 0, 5, 0, 15 ] },
         exporterPdfTableHeaderStyle : { bold : true, fontSize : 12, color : 'black' },
@@ -92,7 +93,8 @@ describe('ui.grid.exporter uiGridExporterService', function () {
         exporterMenuPdf: true,
         exporterFieldCallback: jasmine.any(Function),
         exporterAllDataFn: null,
-        exporterSuppressColumns: []
+        exporterSuppressColumns: [],
+        exporterMenuItemOrder: 200
       });
     });
 
@@ -105,6 +107,7 @@ describe('ui.grid.exporter uiGridExporterService', function () {
         exporterCsvFilename: 'myfile.csv',
         exporterPdfFilename: 'myfile.pdf',
         exporterOlderExcelCompatibility: true,
+        exporterIsExcelCompatible: true,
         exporterPdfDefaultStyle : { fontSize : 12 },
         exporterPdfTableStyle : { margin : [ 15, 5, 15, 15 ] },
         exporterPdfTableHeaderStyle : { bold : false, fontSize : 12, color : 'green' },
@@ -122,7 +125,8 @@ describe('ui.grid.exporter uiGridExporterService', function () {
         exporterMenuPdf: false,
         exporterFieldCallback: callback,
         exporterAllDataPromise: callback,
-        exporterSuppressColumns: [ 'buttons' ]
+        exporterSuppressColumns: [ 'buttons' ],
+        exporterMenuItemOrder: 75
       };
       uiGridExporterService.defaultGridOptions(options);
       expect( options ).toEqual({
@@ -132,6 +136,7 @@ describe('ui.grid.exporter uiGridExporterService', function () {
         exporterCsvFilename: 'myfile.csv',
         exporterPdfFilename: 'myfile.pdf',
         exporterOlderExcelCompatibility: true,
+        exporterIsExcelCompatible: true,
         exporterPdfDefaultStyle : { fontSize : 12 },
         exporterPdfTableStyle : { margin : [ 15, 5, 15, 15 ] },
         exporterPdfTableHeaderStyle : { bold : false, fontSize : 12, color : 'green' },
@@ -150,7 +155,8 @@ describe('ui.grid.exporter uiGridExporterService', function () {
         exporterFieldCallback: callback,
         exporterAllDataFn: callback,
         exporterAllDataPromise: callback,
-        exporterSuppressColumns: [ 'buttons' ]
+        exporterSuppressColumns: [ 'buttons' ],
+        exporterMenuItemOrder: 75
       });
     });
   });
